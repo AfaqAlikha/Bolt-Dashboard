@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState,useEffect } from "react";
 import { Route, Routes, Link, useLocation } from "react-router-dom";
 import { styled, useTheme } from "@mui/material/styles";
 import Box from "@mui/material/Box";
@@ -19,14 +19,24 @@ import ListItemIcon from "@mui/material/ListItemIcon";
 import ListItemText from "@mui/material/ListItemText";
 import PersonIcon from "@mui/icons-material/Person";
 import GroupIcon from "@mui/icons-material/Group";
+import LocationOnIcon from "@mui/icons-material/LocationOn";
 import Dashboard from "../pages/Dashboard"; // Adjust the import path accordingly
 import DashboardIcon from "@mui/icons-material/Dashboard";
 import AllUsers from "../pages/AllUsers";
 import ActiveUsers from "../pages/ActiveUsers";
 import UnActiveUsers from "../pages/UnActiveUsers";
 import AddUsers from "../pages/AddUsers";
+import Location from "../pages/Location";
+import LockedCustomer from "../pages/LockedCustomer";
+import UnLockedCustomer from "../pages/UnLockedCustomer";
 import PersonOffIcon from "@mui/icons-material/PersonOff";
+import ExitToAppIcon from "@mui/icons-material/ExitToApp";
 import PersonAddIcon from "@mui/icons-material/PersonAdd";
+import LockIcon from "@mui/icons-material/Lock";
+import LockOpenIcon from "@mui/icons-material/LockOpen";
+import { getAuth, onAuthStateChanged,signOut } from "firebase/auth";
+import { app } from "../Firbase"; 
+import { useNavigate } from "react-router-dom";
 const drawerWidth = 200;
 
 const openedMixin = (theme) => ({
@@ -59,6 +69,8 @@ const DrawerHeader = styled("div")(({ theme }) => ({
 }));
 
 const AppBar = styled(MuiAppBar, {
+
+
   shouldForwardProp: (prop) => prop !== "open",
 })(({ theme, open }) => ({
   zIndex: theme.zIndex.drawer + 1,
@@ -134,9 +146,11 @@ function NavItem({ to, icon, text }) {
 }
 
 export default function DashboardLayout() {
+  const auth = getAuth(app);
+  const navigate=useNavigate()
   const theme = useTheme();
   const [open, setOpen] = useState(false);
-
+  const [user, setuser] = useState(null);
   const handleDrawerOpen = () => {
     setOpen(true);
   };
@@ -145,6 +159,32 @@ export default function DashboardLayout() {
     setOpen(false);
   };
 
+  useEffect(() => {
+    // Check the authentication state on component mount
+    const unsubscribe = onAuthStateChanged(auth, (user) => {
+      if (user) {
+        
+        setuser(user);
+      } 
+    });
+
+   
+    // Clean up subscription on component unmount
+    return () => unsubscribe();
+  }, []);
+
+
+  function handleLogout() {
+    signOut(auth)
+      .then(() => {
+       navigate("/login")
+      })
+      .catch((error) => {
+        // An error happened during sign out
+        console.error("Error signing out:", error);
+      });
+  }
+  
   return (
     <Box sx={{ display: "flex" }}>
       <CssBaseline />
@@ -162,9 +202,29 @@ export default function DashboardLayout() {
           >
             <MenuIcon />
           </IconButton>
+          <Box sx={{ width:"100%", display:"flex", alignItems:"center",justifyContent:"space-between"}}>
+          <Box sx={{display:"flex", alignItems:"center",gap:"8px"}}>
+            <img style={{width:"40px", height:"40px", borderRadius:"50%"}} src="/logo.png" alt="logo App"/>
           <Typography variant="h6" noWrap component="div">
-            BOLT DASHBOARD
+          DASHBOARD
           </Typography>
+          </Box>
+          <Box sx={{display:"flex",  alignItems:"center",gap:"20px"}}>
+        <Box sx={{display:"flex", flexDirection:"column", alignItems:"center"}}>
+        <PersonIcon style={{width:"30px", height:"30px", borderRadius:"50%"}}/>
+            {/* <img style={{width:"35px", height:"35px", borderRadius:"50%"}} src="/logo.png" alt="logo App"/> */}
+          <Typography sx={{fontSize:"14px"}} variant="h6" noWrap component="div">
+             {user!==null ?(user.email):(null)}
+          </Typography>
+        </Box>
+        <button onClick={()=>{handleLogout()}} style={{border:"none", background:"none", display:"flex",flexDirection:"column", alignItems:"center"}}>  <ExitToAppIcon style={{ width: "24px", height: "24px", color: "white" }} />
+        <Typography sx={{fontSize:"14px", color:"white"}} variant="h6" noWrap component="div">
+           Logout
+          </Typography>
+        </button>
+          </Box>
+
+          </Box>
         </Toolbar>
       </AppBar>
       <Drawer variant="permanent" open={open}>
@@ -192,6 +252,21 @@ export default function DashboardLayout() {
             icon={<PersonOffIcon />}
             text="UnActive Users"
           />
+          <NavItem
+            to="/location"
+            icon={<LocationOnIcon />}
+            text="User Location"
+          />
+          <NavItem
+            to="/lockedcustomers"
+            icon={<LockIcon />}
+            text="Locked Customers"
+          />
+          <NavItem
+            to="/unlockedcustomers"
+            icon={<LockOpenIcon />}
+            text="UnLocked Customers"
+          />
         </List>
         <Divider />
       </Drawer>
@@ -203,6 +278,9 @@ export default function DashboardLayout() {
           <Route path="/addusers" element={<AddUsers />} />
           <Route path="/activeUsers" element={<ActiveUsers />} />
           <Route path="/unactiveUsers" element={<UnActiveUsers />} />
+          <Route path="/location" element={<Location />} />
+          <Route path="/lockedcustomers" element={<LockedCustomer />} />
+          <Route path="/unlockedcustomers" element={<UnLockedCustomer />} />
         </Routes>
       </Box>
     </Box>

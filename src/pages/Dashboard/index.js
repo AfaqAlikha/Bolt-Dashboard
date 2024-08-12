@@ -1,4 +1,5 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
+import { getDatabase, ref, child, get, update } from "firebase/database";
 import "bootstrap/dist/css/bootstrap.min.css";
 import PersonIcon from "@mui/icons-material/Person";
 import AddIcon from "@mui/icons-material/Add";
@@ -7,14 +8,96 @@ import LockOpenIcon from "@mui/icons-material/LockOpen";
 import { Link } from "react-router-dom";
 import ActiveUsers from "../../components/cards/ActiveUsers";
 import ActiveUserTable from "../../components/Tabals/ActiveUserTable";
+import { app } from "../../Firbase";
+import Spinner from 'react-bootstrap/Spinner';
 const Index = () => {
+  const [users, setUsers] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [totalUserCount, setTotalUserCount] = useState(0);
+  const [totalActiveUserCount, setTotalActiveUserCount] = useState(0);
+  const [totalUnActiveUserCount, setTotalUnActiveUserCount] = useState(0);
+  const [totalLockedUserCount, setTotalLockedUserCount] = useState(0);
+  const [totalUnLockedUserCount, setTotalUnLockedUserCount] = useState(0);
+  useEffect(() => {
+    const getAllUsers = async () => {
+      const dbRef = ref(getDatabase(app));
+
+      try {
+        const snapshot = await get(child(dbRef, 'users/childs'));
+        if (snapshot.exists()) {
+               // TOTLE  USERS 
+          const allUsers = snapshot.val();
+          const TOTLEUSERS=Object.values(allUsers)
+          setTotalUserCount(TOTLEUSERS.length)
+          // TOTLE ACTIVE USERS 
+          const filteredUsers = Object.values(allUsers).filter(user => user.kidstatus === true);
+          setUsers(filteredUsers); 
+          const TOTLEACTIVEUSERS=Object.values(filteredUsers)
+          setTotalActiveUserCount(TOTLEACTIVEUSERS.length)
+               // TOTLE ACTIVE USERS 
+          const filteredUsersunactive = Object.values(allUsers).filter(user => user.kidstatus === false);
+          const TOTLUNEACTIVEUSERS=Object.values(filteredUsersunactive)
+          setTotalUnActiveUserCount(TOTLUNEACTIVEUSERS.length)
+               // TOTLE Loked USERS 
+
+               const filteredUsersLoked = Object.values(allUsers).filter(user => user.screenLock?.locked === true);
+               const TOTLUNELOKEDUSER=Object.values(filteredUsersLoked)
+               setTotalLockedUserCount(TOTLUNELOKEDUSER.length)
+                   // TOTLE Loked USERS 
+
+                   const filteredUsersUnLoked = Object.values(allUsers).filter(user => user.screenLock?.locked === false);
+                   const TOTLUNEUNLOKEDUSER=Object.values(filteredUsersUnLoked)
+                   setTotalUnLockedUserCount(TOTLUNEUNLOKEDUSER.length)
+
+        } else {
+          console.log("No data available");
+        }
+      } catch (error) {
+        console.error("Error retrieving data:", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    getAllUsers();
+  }, []);
+
+  const handleToggleChange = async (parentUid, phone, updatedStatus) => {
+    const db = getDatabase();
+    const userRef = ref(db, `users/childs/${parentUid}${phone}/screenLock`);
+
+    try {
+      setLoading(true); // Show loading indicator
+      const snapshot = await get(userRef);
+      if (snapshot.exists()) {
+        const currentData = snapshot.val();
+        await update(userRef, {
+          ...currentData,
+          locked: updatedStatus
+        });
+        // Re-fetch data to reflect updates
+        const snapshotUpdated = await get(child(ref(db), 'users/childs'));
+        if (snapshotUpdated.exists()) {
+          const allUsers = snapshotUpdated.val();
+
+          setUsers(Object.values(allUsers));
+        }
+      } else {
+        console.error("No screenLock data found");
+      }
+    } catch (error) {
+      console.error("Error updating status:", error);
+    } finally {
+      setLoading(false); // Hide loading indicator
+    }
+  };
+
   return (
     <main>
       <div className="">
-        <div className="row">
-          <div className="col-8">
-            <div className="row gap-2">
-              <div
+        <div className="row gap-2">
+       <div className="row gap-3">
+       <div
                 className="col-sm py-5 px-1 rounded"
                 style={{
                   background: "linear-gradient(to bottom, green, gray)",
@@ -23,7 +106,7 @@ const Index = () => {
                 <Link to="/addusers" className="text-decoration-none">
                   <div className="d-flex flex-column align-items-center">
                     <AddIcon sx={{ fontSize: 60, color: "white" }} />
-                    <h5 className="ms-2 fs-5 text-white fw-bold">ADD USER</h5>
+                    <h5 style={{fontSize:"16px"}} className="ms-2  text-white fw-bold">ADD USER</h5>
                   </div>
                 </Link>
               </div>
@@ -36,7 +119,8 @@ const Index = () => {
                 <Link to="/allusers" className="text-decoration-none">
                   <div className="d-flex flex-column align-items-center">
                     <PersonIcon sx={{ fontSize: 60, color: "white" }} />
-                    <h5 className="ms-2 fs-5 text-white fw-bold">ALL USERS</h5>
+                    <h5 style={{fontSize:"16px"}} className="ms-2  text-white fw-bold">ALL USERS</h5>
+                    <p style={{fontSize:"14px"}} className="ms-2  text-white fw-bold">TOTLE:{totalUserCount}</p>
                   </div>
                 </Link>
               </div>
@@ -49,24 +133,28 @@ const Index = () => {
                 <Link to="/activeUsers" className="text-decoration-none">
                   <div className="d-flex flex-column align-items-center">
                     <PersonIcon sx={{ fontSize: 60, color: "white" }} />
-                    <h5 className="ms-2 fs-5 text-white fw-bold">
+                    <h5 style={{fontSize:"16px"}} className="ms-2  text-white fw-bold">
                       ACTIVE USERS
                     </h5>
+                    <p style={{fontSize:"14px"}} className="ms-2  text-white fw-bold">TOTLE:{totalActiveUserCount}</p>
                   </div>
                 </Link>
               </div>
-            </div>
-            <div className="row gap-3 my-3">
-              <div
+       </div>
+         
+
+            <div className="row gap-3">
+            <div
                 className="col-sm py-5 px-1 rounded"
                 style={{ background: "linear-gradient(to bottom, red, green)" }}
               >
                 <Link to="/unactiveUsers" className="text-decoration-none">
                   <div className="d-flex flex-column align-items-center">
                     <PersonIcon sx={{ fontSize: 60, color: "white" }} />
-                    <h5 className="ms-2 fs-5 text-white fw-bold">
+                    <h5 style={{fontSize:"16px"}} className="ms-2  text-white fw-bold">
                       UNACTIVE USERS
                     </h5>
+                    <p style={{fontSize:"14px"}} className="ms-2  text-white fw-bold">TOTLE:{totalUnActiveUserCount}</p>
                   </div>
                 </Link>
               </div>
@@ -77,9 +165,10 @@ const Index = () => {
                 <Link to="#" className="text-decoration-none">
                   <div className="d-flex flex-column align-items-center">
                     <LockIcon sx={{ fontSize: 60, color: "white" }} />
-                    <h5 className="ms-2 fs-5 text-white fw-bold">
+                    <h5 style={{fontSize:"16px"}} className="ms-2  text-white fw-bold">
                       LOCK CUSTOMERS
                     </h5>
+                    <p style={{fontSize:"14px"}} className="ms-2  text-white fw-bold">TOTLE:{totalLockedUserCount}</p>
                   </div>
                 </Link>
               </div>
@@ -92,23 +181,21 @@ const Index = () => {
                 <Link to="#" className="text-decoration-none">
                   <div className="d-flex flex-column align-items-center">
                     <LockOpenIcon sx={{ fontSize: 60, color: "white" }} />
-                    <h5 className="ms-2 fs-5 text-white fw-bold">
+                    <h5 style={{fontSize:"16px"}} className="ms-2  text-white fw-bold">
                       UNLOCK CUSTOMERS
                     </h5>
+                    <p style={{fontSize:"14px"}} className="ms-2  text-white fw-bold">TOTLE:{totalUnLockedUserCount}</p>
                   </div>
                 </Link>
               </div>
             </div>
-          </div>
-          <div className="col-4">
-            <ActiveUsers />
-          </div>
+          
         </div>
       </div>
 
       <div className="mt-3">
         <h5 className="fw-bold">Active Users</h5>
-        <ActiveUserTable />
+        <ActiveUserTable data={users} loading={loading} onToggleChange={handleToggleChange} />
       </div>
     </main>
   );
