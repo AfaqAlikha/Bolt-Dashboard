@@ -8,7 +8,7 @@ import Spinner from 'react-bootstrap/Spinner';
 import "../../styles/Table.css";
 import { Link } from 'react-router-dom';
 import LocationOnIcon from "@mui/icons-material/LocationOn";
-const ActiveUserTable = ({ data = [], loading, onToggleChange }) => {
+const ActiveUserTable = ({ data = [], loading, onToggleChange,onDeleteUser }) => {
   const [searchTerm, setSearchTerm] = useState("");
   const [localLoading, setLocalLoading] = useState({});
 
@@ -29,6 +29,18 @@ const ActiveUserTable = ({ data = [], loading, onToggleChange }) => {
       setLocalLoading(prev => ({ ...prev, [`${parentUid}${phone}`]: false }));
     }
   };
+
+
+  const handleDeleteUser = async (parentUid, phone) => {
+    try {
+      await onDeleteUser(parentUid, phone);
+      toast.success('User deleted successfully!');
+    } catch (error) {
+      console.error("Error deleting user:", error);
+      toast.error('This user could not be deleted');
+    }
+  };
+
 
   // Filter users based on search term
   const filteredUsers = data.filter((user) =>
@@ -130,7 +142,7 @@ const ActiveUserTable = ({ data = [], loading, onToggleChange }) => {
                         <Spinner animation="border" size="sm" />
                       )}
                     </div>
-                    <button className="btn-delete">
+                    <button className="btn-delete" onClick={() => handleDeleteUser(user.parentUid, user.phone)}>
                       <DeleteIcon style={{ color: "red" }} />
                     </button>
                   </div>

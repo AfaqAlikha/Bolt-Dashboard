@@ -37,7 +37,7 @@ import LockOpenIcon from "@mui/icons-material/LockOpen";
 import { getAuth, onAuthStateChanged,signOut } from "firebase/auth";
 import { app } from "../Firbase"; 
 import { useNavigate } from "react-router-dom";
-const drawerWidth = 200;
+const drawerWidth = 240;
 
 const openedMixin = (theme) => ({
   width: drawerWidth,
