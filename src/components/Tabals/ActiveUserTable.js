@@ -11,14 +11,14 @@ import LocationModal from "../Modals/LocationModal";
 import VisibilityIcon from "@mui/icons-material/Visibility";
 import Modal from "react-bootstrap/Modal";
 import Button from "react-bootstrap/Button";
-const ActiveUserTable = ({ data = [], loading, onToggleChange,onDeleteUser }) => {
+
+const ActiveUserTable = ({ data = [], loading, onToggleChange, onDeleteUser }) => {
   const [searchTerm, setSearchTerm] = useState("");
   const [localLoading, setLocalLoading] = useState({});
   const [showLocationModal, setShowLocationModal] = useState(false);
   const [selectedLocation, setSelectedLocation] = useState({ latitude: 0, longitude: 0 });
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [userToDelete, setUserToDelete] = useState(null);
-
 
   const handleToggleChange = async (parentUid, phone, currentLockedStatus) => {
     const updatedStatus = !currentLockedStatus;
@@ -38,7 +38,6 @@ const ActiveUserTable = ({ data = [], loading, onToggleChange,onDeleteUser }) =>
     }
   };
 
-
   const handleDeleteUser = async (parentUid, phone) => {
     try {
       await onDeleteUser(parentUid, phone);
@@ -48,7 +47,6 @@ const ActiveUserTable = ({ data = [], loading, onToggleChange,onDeleteUser }) =>
       toast.error('This user could not be deleted');
     }
   };
-
 
   const handleShowDeleteModal = (user) => {
     setUserToDelete(user);
@@ -75,8 +73,6 @@ const ActiveUserTable = ({ data = [], loading, onToggleChange,onDeleteUser }) =>
     setUserToDelete(null);
   };
 
-
-
   const handleShowLocation = (latitude, longitude) => {
     setSelectedLocation({ latitude, longitude });
     setShowLocationModal(true);
@@ -85,7 +81,6 @@ const ActiveUserTable = ({ data = [], loading, onToggleChange,onDeleteUser }) =>
   const handleCloseLocationModal = () => {
     setShowLocationModal(false);
   };
-
 
   // Filter users based on search term
   const filteredUsers = data.filter((user) =>
@@ -111,104 +106,104 @@ const ActiveUserTable = ({ data = [], loading, onToggleChange,onDeleteUser }) =>
           <SearchIcon style={{ color: "#888" }} />
         </div>
       </div>
-      <table className="table table-striped">
-        <thead>
-          <tr>
-            <th scope="col">Name</th>
-            <th scope="col">Phone</th>
-            <th scope="col">Parent Phone</th>
-            <th scope="col">Mobile Type</th>
-            <th scope="col">Mobile IMEI</th>
-            <th scope="col">Status</th>
-            <th scope="col">Location</th>
-            <th scope="col">Action</th>
-          </tr>
-        </thead>
-        <tbody>
-          {loading ? (
+      <div className="table-container"> {/* Add this class */}
+        <table className="table table-striped">
+          <thead>
             <tr>
-              <td colSpan="8" style={{ textAlign: "center", padding: "20px" }}>
-                <Spinner animation="grow" variant="dark" />
-              </td>
+              <th scope="col">Name</th>
+              <th scope="col">Phone</th>
+              <th scope="col">Parent Phone</th>
+              <th scope="col">Mobile Type</th>
+              <th scope="col">Mobile IMEI</th>
+              <th scope="col">Status</th>
+              <th scope="col">Location</th>
+              <th scope="col">Action</th>
             </tr>
-          ) : filteredUsers.length === 0 ? (
-            <tr>
-              <td colSpan="8" style={{ textAlign: "center", padding: "20px" }}>
-                No data found
-              </td>
-            </tr>
-          ) : (
-            filteredUsers.map((user, index) => (
-              <tr key={index}>
-                <td>{user.name || "NA"}</td>
-                <td>{user.phone}</td>
-                <td>{user.parentPhone}</td>
-                <td>{user.mobiletype}</td>
-                <td>{user.mobileimei}</td>
-                <td>
-                  {user.kidstatus ? (
-                    <>
-                      Active
-                      <FiberManualRecordIcon
-                        style={{ color: "green", fontSize: "18px" }}
-                      />
-                    </>
-                  ) : (
-                    <>
-                      Active
-                      <FiberManualRecordIcon
-                        style={{ color: "red", fontSize: "18px" }}
-                      />
-                    </>
-                  )}
-                </td>
-                <td>
-                {user.location ? (
-                    <>
-                      <button
-                        className="btn btn-link"
-                        onClick={() => handleShowLocation(user.location.latitude, user.location.longitude)}
-                      >
-                        <VisibilityIcon style={{ color: "green" }} />
-                      </button>
-                    </>
-                  ) : (
-                    <>
-                    <button
-                      className="btn btn-link"
-                     
-                    >
-                      <VisibilityOffIcon style={{ color: "gray" }} />
-                    </button>
-                  </>
-                  )}
-                </td>
-             
-                <td>
-                  <div className="cont">
-                    <div className="toggle">
-                      <input
-                        type="checkbox"
-                        id={`${user.parentUid}${user.phone}`}
-                        className="toggle__input"
-                        checked={user.screenLock?.locked || false}
-                        onChange={() => handleToggleChange(user.parentUid, user.phone, user.screenLock?.locked || false)}
-                      />
-                      <label htmlFor={`${user.parentUid}${user.phone}`} className="toggle__label"></label>
-                      {localLoading[`${user.parentUid}${user.phone}`] && (
-                        <Spinner animation="border" size="sm" />
-                      )}
-                    </div>
-                    <button className="btn-delete" onClick={() => handleShowDeleteModal(user)}>
-                      <DeleteIcon style={{ color: "red" }} />
-                    </button>
-                  </div>
+          </thead>
+          <tbody>
+            {loading ? (
+              <tr>
+                <td colSpan="8" style={{ textAlign: "center", padding: "20px" }}>
+                  <Spinner animation="grow" variant="dark" />
                 </td>
               </tr>
-            ))
-          )}
-        </tbody>
-      </table>
+            ) : filteredUsers.length === 0 ? (
+              <tr>
+                <td colSpan="8" style={{ textAlign: "center", padding: "20px" }}>
+                  No data found
+                </td>
+              </tr>
+            ) : (
+              filteredUsers.map((user, index) => (
+                <tr key={index}>
+                  <td>{user.name || "NA"}</td>
+                  <td>{user.phone}</td>
+                  <td>{user.parentPhone}</td>
+                  <td>{user.mobiletype}</td>
+                  <td>{user.mobileimei}</td>
+                  <td>
+                    {user.kidstatus ? (
+                      <>
+                        Active
+                        <FiberManualRecordIcon
+                          style={{ color: "green", fontSize: "18px" }}
+                        />
+                      </>
+                    ) : (
+                      <>
+                        Inactive
+                        <FiberManualRecordIcon
+                          style={{ color: "red", fontSize: "18px" }}
+                        />
+                      </>
+                    )}
+                  </td>
+                  <td>
+                    {user.location ? (
+                      <>
+                        <button
+                          className="btn btn-link"
+                          onClick={() => handleShowLocation(user.location.latitude, user.location.longitude)}
+                        >
+                          <VisibilityIcon style={{ color: "green" }} />
+                        </button>
+                      </>
+                    ) : (
+                      <>
+                        <button
+                          className="btn btn-link"
+                        >
+                          <VisibilityOffIcon style={{ color: "gray" }} />
+                        </button>
+                      </>
+                    )}
+                  </td>
+                  <td>
+                    <div className="cont">
+                      <div className="toggle">
+                        <input
+                          type="checkbox"
+                          id={`${user.parentUid}${user.phone}`}
+                          className="toggle__input"
+                          checked={user.screenLock?.locked || false}
+                          onChange={() => handleToggleChange(user.parentUid, user.phone, user.screenLock?.locked || false)}
+                        />
+                        <label htmlFor={`${user.parentUid}${user.phone}`} className="toggle__label"></label>
+                        {localLoading[`${user.parentUid}${user.phone}`] && (
+                          <Spinner animation="border" size="sm" />
+                        )}
+                      </div>
+                      <button className="btn-delete" onClick={() => handleShowDeleteModal(user)}>
+                        <DeleteIcon style={{ color: "red" }} />
+                      </button>
+                    </div>
+                  </td>
+                </tr>
+              ))
+            )}
+          </tbody>
+        </table>
+      </div>
       <LocationModal
         show={showLocationModal}
         handleClose={handleCloseLocationModal}
@@ -216,8 +211,8 @@ const ActiveUserTable = ({ data = [], loading, onToggleChange,onDeleteUser }) =>
         longitude={selectedLocation.longitude}
       />
 
-       {/* Delete Confirmation Modal */}
-       <Modal show={showDeleteModal} onHide={handleCloseDeleteModal} centered>
+      {/* Delete Confirmation Modal */}
+      <Modal show={showDeleteModal} onHide={handleCloseDeleteModal} centered >
         <Modal.Header closeButton>
           <Modal.Title>Confirm Deletion</Modal.Title>
         </Modal.Header>
