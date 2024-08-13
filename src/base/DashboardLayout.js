@@ -19,14 +19,14 @@ import ListItemIcon from "@mui/material/ListItemIcon";
 import ListItemText from "@mui/material/ListItemText";
 import PersonIcon from "@mui/icons-material/Person";
 import GroupIcon from "@mui/icons-material/Group";
-import LocationOnIcon from "@mui/icons-material/LocationOn";
+
 import Dashboard from "../pages/Dashboard"; // Adjust the import path accordingly
 import DashboardIcon from "@mui/icons-material/Dashboard";
 import AllUsers from "../pages/AllUsers";
 import ActiveUsers from "../pages/ActiveUsers";
 import UnActiveUsers from "../pages/UnActiveUsers";
 import AddUsers from "../pages/AddUsers";
-import Location from "../pages/Location";
+
 import LockedCustomer from "../pages/LockedCustomer";
 import UnLockedCustomer from "../pages/UnLockedCustomer";
 import PersonOffIcon from "@mui/icons-material/PersonOff";
@@ -252,11 +252,7 @@ export default function DashboardLayout() {
             icon={<PersonOffIcon />}
             text="UnActive Users"
           />
-          <NavItem
-            to="/location"
-            icon={<LocationOnIcon />}
-            text="User Location"
-          />
+          
           <NavItem
             to="/lockedcustomers"
             icon={<LockIcon />}
@@ -278,7 +274,7 @@ export default function DashboardLayout() {
           <Route path="/addusers" element={<AddUsers />} />
           <Route path="/activeUsers" element={<ActiveUsers />} />
           <Route path="/unactiveUsers" element={<UnActiveUsers />} />
-          <Route path="/location" element={<Location />} />
+         
           <Route path="/lockedcustomers" element={<LockedCustomer />} />
           <Route path="/unlockedcustomers" element={<UnLockedCustomer />} />
         </Routes>

@@ -6,11 +6,19 @@ import DeleteIcon from "@mui/icons-material/Delete";
 import SearchIcon from "@mui/icons-material/Search";
 import Spinner from 'react-bootstrap/Spinner';
 import "../../styles/Table.css";
-import { Link } from 'react-router-dom';
-import LocationOnIcon from "@mui/icons-material/LocationOn";
+import VisibilityOffIcon from "@mui/icons-material/VisibilityOff";
+import LocationModal from "../Modals/LocationModal";
+import VisibilityIcon from "@mui/icons-material/Visibility";
+import Modal from "react-bootstrap/Modal";
+import Button from "react-bootstrap/Button";
 const ActiveUserTable = ({ data = [], loading, onToggleChange,onDeleteUser }) => {
   const [searchTerm, setSearchTerm] = useState("");
   const [localLoading, setLocalLoading] = useState({});
+  const [showLocationModal, setShowLocationModal] = useState(false);
+  const [selectedLocation, setSelectedLocation] = useState({ latitude: 0, longitude: 0 });
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const [userToDelete, setUserToDelete] = useState(null);
+
 
   const handleToggleChange = async (parentUid, phone, currentLockedStatus) => {
     const updatedStatus = !currentLockedStatus;
@@ -39,6 +47,43 @@ const ActiveUserTable = ({ data = [], loading, onToggleChange,onDeleteUser }) =>
       console.error("Error deleting user:", error);
       toast.error('This user could not be deleted');
     }
+  };
+
+
+  const handleShowDeleteModal = (user) => {
+    setUserToDelete(user);
+    setShowDeleteModal(true);
+  };
+
+  const handleConfirmDelete = async () => {
+    if (userToDelete) {
+      try {
+        await onDeleteUser(userToDelete.parentUid, userToDelete.phone);
+        toast.success("User deleted successfully!");
+      } catch (error) {
+        console.error("Error deleting user:", error);
+        toast.error("This user could not be deleted.");
+      } finally {
+        setShowDeleteModal(false);
+        setUserToDelete(null);
+      }
+    }
+  };
+
+  const handleCloseDeleteModal = () => {
+    setShowDeleteModal(false);
+    setUserToDelete(null);
+  };
+
+
+
+  const handleShowLocation = (latitude, longitude) => {
+    setSelectedLocation({ latitude, longitude });
+    setShowLocationModal(true);
+  };
+
+  const handleCloseLocationModal = () => {
+    setShowLocationModal(false);
   };
 
 
@@ -110,23 +155,35 @@ const ActiveUserTable = ({ data = [], loading, onToggleChange,onDeleteUser }) =>
                     </>
                   ) : (
                     <>
-                      Inactive
+                      Active
                       <FiberManualRecordIcon
                         style={{ color: "red", fontSize: "18px" }}
                       />
                     </>
                   )}
                 </td>
+                <td>
                 {user.location ? (
-                  <td>
-                    <LocationOnIcon color="success"/>
-                    <Link to={`/location?latitude=${user.location.latitude}&longitude=${user.location.longitude}`}>
-                      Location
-                    </Link>
-                  </td>
-                ) : (
-                  <td>NO</td>
-                )}
+                    <>
+                      <button
+                        className="btn btn-link"
+                        onClick={() => handleShowLocation(user.location.latitude, user.location.longitude)}
+                      >
+                        <VisibilityIcon style={{ color: "green" }} />
+                      </button>
+                    </>
+                  ) : (
+                    <>
+                    <button
+                      className="btn btn-link"
+                     
+                    >
+                      <VisibilityOffIcon style={{ color: "gray" }} />
+                    </button>
+                  </>
+                  )}
+                </td>
+             
                 <td>
                   <div className="cont">
                     <div className="toggle">
@@ -142,7 +199,7 @@ const ActiveUserTable = ({ data = [], loading, onToggleChange,onDeleteUser }) =>
                         <Spinner animation="border" size="sm" />
                       )}
                     </div>
-                    <button className="btn-delete" onClick={() => handleDeleteUser(user.parentUid, user.phone)}>
+                    <button className="btn-delete" onClick={() => handleShowDeleteModal(user)}>
                       <DeleteIcon style={{ color: "red" }} />
                     </button>
                   </div>
@@ -152,6 +209,30 @@ const ActiveUserTable = ({ data = [], loading, onToggleChange,onDeleteUser }) =>
           )}
         </tbody>
       </table>
+      <LocationModal
+        show={showLocationModal}
+        handleClose={handleCloseLocationModal}
+        latitude={selectedLocation.latitude}
+        longitude={selectedLocation.longitude}
+      />
+
+       {/* Delete Confirmation Modal */}
+       <Modal show={showDeleteModal} onHide={handleCloseDeleteModal} centered>
+        <Modal.Header closeButton>
+          <Modal.Title>Confirm Deletion</Modal.Title>
+        </Modal.Header>
+        <Modal.Body>
+          Are you sure you want to delete this user?
+        </Modal.Body>
+        <Modal.Footer>
+          <Button variant="secondary" onClick={handleCloseDeleteModal}>
+            Cancel
+          </Button>
+          <Button variant="danger" onClick={handleConfirmDelete}>
+            Delete
+          </Button>
+        </Modal.Footer>
+      </Modal>
     </div>
   );
 };

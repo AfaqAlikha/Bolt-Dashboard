@@ -116,55 +116,9 @@ const Index = () => {
     <main>
       <div className="">
         <div className="row gap-2">
-       <div className="row gap-3">
-       <div
-                className="col-sm py-5 px-1 rounded"
-                style={{
-                  background: "linear-gradient(to bottom, green, gray)",
-                }}
-              >
-                <Link to="/addusers" className="text-decoration-none">
-                  <div className="d-flex flex-column align-items-center">
-                    <AddIcon sx={{ fontSize: 60, color: "white" }} />
-                    <h5 style={{fontSize:"16px"}} className="ms-2  text-white fw-bold">ADD USER</h5>
-                  </div>
-                </Link>
-              </div>
-              <div
-                className="col-sm py-5 px-1 rounded"
-                style={{
-                  background: "linear-gradient(to bottom, gray, orange)",
-                }}
-              >
-                <Link to="/allusers" className="text-decoration-none">
-                  <div className="d-flex flex-column align-items-center">
-                    <PersonIcon sx={{ fontSize: 60, color: "white" }} />
-                    <h5 style={{fontSize:"16px"}} className="ms-2  text-white fw-bold">ALL USERS</h5>
-                    <p style={{fontSize:"14px"}} className="ms-2  text-white fw-bold">TOTLE:{totalUserCount}</p>
-                  </div>
-                </Link>
-              </div>
-              <div
-                className="col-sm py-5 px-1 rounded"
-                style={{
-                  background: "linear-gradient(to bottom, green, lightgreen)",
-                }}
-              >
-                <Link to="/activeUsers" className="text-decoration-none">
-                  <div className="d-flex flex-column align-items-center">
-                    <PersonIcon sx={{ fontSize: 60, color: "white" }} />
-                    <h5 style={{fontSize:"16px"}} className="ms-2  text-white fw-bold">
-                      ACTIVE USERS
-                    </h5>
-                    <p style={{fontSize:"14px"}} className="ms-2  text-white fw-bold">TOTLE:{totalActiveUserCount}</p>
-                  </div>
-                </Link>
-              </div>
-       </div>
-         
 
-            <div className="row gap-3">
-            <div
+
+        <div
                 className="col-sm py-5 px-1 rounded"
                 style={{ background: "linear-gradient(to bottom, red, green)" }}
               >
@@ -208,7 +162,57 @@ const Index = () => {
                   </div>
                 </Link>
               </div>
-            </div>
+
+              <div
+                className="col-sm py-5 px-1 rounded"
+                style={{
+                  background: "linear-gradient(to bottom, green, gray)",
+                }}
+              >
+                <Link to="/addusers" className="text-decoration-none">
+                  <div className="d-flex flex-column align-items-center">
+                    <AddIcon sx={{ fontSize: 60, color: "white" }} />
+                    <h5 style={{fontSize:"16px"}} className="ms-2  text-white fw-bold">ADD USER</h5>
+                  </div>
+                </Link>
+              </div>
+              <div
+                className="col-sm py-5 px-1 rounded"
+                style={{
+                  background: "linear-gradient(to bottom, gray, orange)",
+                }}
+              >
+                <Link to="/allusers" className="text-decoration-none">
+                  <div className="d-flex flex-column align-items-center">
+                    <PersonIcon sx={{ fontSize: 60, color: "white" }} />
+                    <h5 style={{fontSize:"16px"}} className="ms-2  text-white fw-bold">ALL USERS</h5>
+                    <p style={{fontSize:"14px"}} className="ms-2  text-white fw-bold">TOTLE:{totalUserCount}</p>
+                  </div>
+                </Link>
+              </div>
+              <div
+                className="col-sm py-5 px-1 rounded"
+                style={{
+                  background: "linear-gradient(to bottom, green, lightgreen)",
+                }}
+              >
+                <Link to="/activeUsers" className="text-decoration-none">
+                  <div className="d-flex flex-column align-items-center">
+                    <PersonIcon sx={{ fontSize: 60, color: "white" }} />
+                    <h5 style={{fontSize:"16px"}} className="ms-2  text-white fw-bold">
+                      ACTIVE USERS
+                    </h5>
+                    <p style={{fontSize:"14px"}} className="ms-2  text-white fw-bold">TOTLE:{totalActiveUserCount}</p>
+                  </div>
+                </Link>
+              </div>
+
+
+
+    
+         
+
+          
           
         </div>
       </div>
