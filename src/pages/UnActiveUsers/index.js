@@ -1,23 +1,31 @@
 import React, { useEffect, useState } from "react";
-import { getDatabase, ref, child, get, update,remove } from "firebase/database";
+import {
+  getDatabase,
+  ref,
+  child,
+  get,
+  update,
+  remove,
+} from "firebase/database";
 import ActiveUserTable from "../../components/Tabals/ActiveUserTable";
 import { app } from "../../Firbase";
-import Spinner from 'react-bootstrap/Spinner';
 
 const Index = () => {
   const [users, setUsers] = useState([]);
   const [loading, setLoading] = useState(true);
-  
+
   useEffect(() => {
     const getAllUsers = async () => {
       const dbRef = ref(getDatabase(app));
 
       try {
-        const snapshot = await get(child(dbRef, 'users/childs'));
+        const snapshot = await get(child(dbRef, "users/childs"));
         if (snapshot.exists()) {
           const allUsers = snapshot.val();
-          const filteredUsers = Object.values(allUsers).filter(user => user.kidstatus === false);
-          setUsers(filteredUsers); 
+          const filteredUsers = Object.values(allUsers).filter(
+            (user) => user.kidstatus === false
+          );
+          setUsers(filteredUsers);
         } else {
           console.log("No data available");
         }
@@ -42,10 +50,10 @@ const Index = () => {
         const currentData = snapshot.val();
         await update(userRef, {
           ...currentData,
-          locked: updatedStatus
+          locked: updatedStatus,
         });
         // Re-fetch data to reflect updates
-        const snapshotUpdated = await get(child(ref(db), 'users/childs'));
+        const snapshotUpdated = await get(child(ref(db), "users/childs"));
         if (snapshotUpdated.exists()) {
           const allUsers = snapshotUpdated.val();
           setUsers(Object.values(allUsers));
@@ -63,16 +71,22 @@ const Index = () => {
   const handleDeleteUser = async (parentUid, phone) => {
     const db = getDatabase();
     const childRef = ref(db, `users/childs/${parentUid}${phone}`);
-    const parentKidRef = ref(db, `users/parents/${parentUid}/kids/${parentUid}${phone}`);
-   
+    const parentKidRef = ref(
+      db,
+      `users/parents/${parentUid}/kids/${parentUid}${phone}`
+    );
+
     try {
       setLoading(true);
-      await remove(childRef);  // Remove from users/childs
+      await remove(childRef); // Remove from users/childs
       await remove(parentKidRef); // Remove from parents/kids
-      const snapshotUpdated = await get(child(ref(db), 'users/childs'));
+      const snapshotUpdated = await get(child(ref(db), "users/childs"));
       if (snapshotUpdated.exists()) {
         const allUsers = snapshotUpdated.val();
-        setUsers(Object.values(allUsers));
+        const filteredUsers = Object.values(allUsers).filter(
+          (user) => user.kidstatus === false
+        );
+        setUsers(filteredUsers);
       }
       console.log("User deleted successfully");
     } catch (error) {
@@ -85,7 +99,12 @@ const Index = () => {
     <div>
       <div className="mt-3">
         <h5 className="fw-bold">UnActive Users</h5>
-        <ActiveUserTable data={users} loading={loading} onToggleChange={handleToggleChange} onDeleteUser={handleDeleteUser} />
+        <ActiveUserTable
+          data={users}
+          loading={loading}
+          onToggleChange={handleToggleChange}
+          onDeleteUser={handleDeleteUser}
+        />
       </div>
     </div>
   );
