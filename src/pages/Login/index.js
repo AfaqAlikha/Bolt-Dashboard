@@ -1,38 +1,38 @@
 import React from "react";
 import { getAuth, signInWithEmailAndPassword } from "firebase/auth";
 import { app } from "../../Firbase"; // Import the Firebase app
-import { useFormik } from 'formik';
-import * as Yup from 'yup';
-import 'bootstrap/dist/css/bootstrap.min.css';
-import { useNavigate } from 'react-router-dom';
+import { useFormik } from "formik";
+import * as Yup from "yup";
+import "bootstrap/dist/css/bootstrap.min.css";
+import { useNavigate } from "react-router-dom";
 const Index = ({ onLogin }) => {
-    const navigate =useNavigate()
-    const auth = getAuth(app);
-
+  const navigate = useNavigate();
+  const auth = getAuth(app);
 
   const formik = useFormik({
     initialValues: {
-      email: '',
-      password: '',
+      email: "",
+      password: "",
     },
     validationSchema: Yup.object({
-      email: Yup.string()
-        .email('Invalid email address')
-        .required('Required'),
+      email: Yup.string().email("Invalid email address").required("Required"),
       password: Yup.string()
-        .min(6, 'Password must be at least 6 characters')
-        .required('Required'),
+        .min(6, "Password must be at least 6 characters")
+        .required("Required"),
     }),
-    onSubmit: async(values) => {
-        try {
-            const userCredential = await signInWithEmailAndPassword(auth, values.email, values.password);
-            console.log("User signed in:", userCredential.user);
-            onLogin();
-             navigate('/');
-          } catch (error) {
-            console.error("Error signing in:", error);
-          }
-      
+    onSubmit: async (values) => {
+      try {
+        const userCredential = await signInWithEmailAndPassword(
+          auth,
+          values.email,
+          values.password
+        );
+
+        onLogin();
+        navigate("/");
+      } catch (error) {
+        console.error("Error signing in:", error);
+      }
     },
   });
 
@@ -40,15 +40,15 @@ const Index = ({ onLogin }) => {
     <div
       className="d-flex justify-content-center align-items-center vh-100"
       style={{
-        backgroundColor: 'lightgray',
+        backgroundColor: "lightgray",
       }}
     >
       <div
         className="card p-4 shadow"
         style={{
-          width: '35rem',
-          background: 'linear-gradient(to bottom, black, gray)',
-          color: 'white',
+          width: "35rem",
+          background: "linear-gradient(to bottom, black, gray)",
+          color: "white",
         }}
       >
         <div className="card-body">
@@ -61,11 +61,13 @@ const Index = ({ onLogin }) => {
               <input
                 type="email"
                 className={`form-control ${
-                  formik.touched.email && formik.errors.email ? 'is-invalid' : ''
+                  formik.touched.email && formik.errors.email
+                    ? "is-invalid"
+                    : ""
                 }`}
                 id="email"
                 placeholder="Enter email"
-                {...formik.getFieldProps('email')}
+                {...formik.getFieldProps("email")}
               />
               {formik.touched.email && formik.errors.email ? (
                 <div className="invalid-feedback">{formik.errors.email}</div>
@@ -79,12 +81,12 @@ const Index = ({ onLogin }) => {
                 type="password"
                 className={`form-control ${
                   formik.touched.password && formik.errors.password
-                    ? 'is-invalid'
-                    : ''
+                    ? "is-invalid"
+                    : ""
                 }`}
                 id="password"
                 placeholder="Enter password"
-                {...formik.getFieldProps('password')}
+                {...formik.getFieldProps("password")}
               />
               {formik.touched.password && formik.errors.password ? (
                 <div className="invalid-feedback">{formik.errors.password}</div>
