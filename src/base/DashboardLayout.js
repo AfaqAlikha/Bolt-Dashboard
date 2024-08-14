@@ -1,280 +1,295 @@
-import React, { useState,useEffect } from "react";
-import { Route, Routes, Link, useLocation } from "react-router-dom";
-import { styled, useTheme } from "@mui/material/styles";
+import React from "react";
+import AppBar from "@mui/material/AppBar";
 import Box from "@mui/material/Box";
-import MuiDrawer from "@mui/material/Drawer";
-import MuiAppBar from "@mui/material/AppBar";
-import Toolbar from "@mui/material/Toolbar";
-import List from "@mui/material/List";
-import { CssBaseline } from "@mui/material";
-import Typography from "@mui/material/Typography";
+import CssBaseline from "@mui/material/CssBaseline";
 import Divider from "@mui/material/Divider";
+import Drawer from "@mui/material/Drawer";
 import IconButton from "@mui/material/IconButton";
-import MenuIcon from "@mui/icons-material/Menu";
-import ChevronLeftIcon from "@mui/icons-material/ChevronLeft";
-import ChevronRightIcon from "@mui/icons-material/ChevronRight";
-import ListItem from "@mui/material/ListItem";
+import List from "@mui/material/List";
 import ListItemButton from "@mui/material/ListItemButton";
 import ListItemIcon from "@mui/material/ListItemIcon";
 import ListItemText from "@mui/material/ListItemText";
-import PersonIcon from "@mui/icons-material/Person";
-import GroupIcon from "@mui/icons-material/Group";
-
-import Dashboard from "../pages/Dashboard"; // Adjust the import path accordingly
-import DashboardIcon from "@mui/icons-material/Dashboard";
-import AllUsers from "../pages/AllUsers";
-import ActiveUsers from "../pages/ActiveUsers";
-import UnActiveUsers from "../pages/UnActiveUsers";
-import AddUsers from "../pages/AddUsers";
-
-import LockedCustomer from "../pages/LockedCustomer";
-import UnLockedCustomer from "../pages/UnLockedCustomer";
-import PersonOffIcon from "@mui/icons-material/PersonOff";
-import ExitToAppIcon from "@mui/icons-material/ExitToApp";
+import MenuIcon from "@mui/icons-material/Menu";
+import Toolbar from "@mui/material/Toolbar";
+import Typography from "@mui/material/Typography";
+import { Link, Route, Routes } from "react-router-dom";
 import PersonAddIcon from "@mui/icons-material/PersonAdd";
 import LockIcon from "@mui/icons-material/Lock";
 import LockOpenIcon from "@mui/icons-material/LockOpen";
-import { getAuth, onAuthStateChanged,signOut } from "firebase/auth";
-import { app } from "../Firbase"; 
+import DashboardIcon from "@mui/icons-material/Dashboard";
+import PersonOffIcon from "@mui/icons-material/PersonOff";
+import PersonIcon from "@mui/icons-material/Person";
+import GroupIcon from "@mui/icons-material/Group";
+import ExitToAppIcon from "@mui/icons-material/ExitToApp";
+import { getAuth, onAuthStateChanged, signOut } from "firebase/auth";
 import { useNavigate } from "react-router-dom";
-const drawerWidth = 240;
+import { app } from "../Firbase"; // Adjust import as needed
+import Dashboard from "../pages/Dashboard"; // Adjust import as needed
+import AllUsers from "../pages/AllUsers"; // Adjust import as needed
+import ActiveUsers from "../pages/ActiveUsers"; // Adjust import as needed
+import UnActiveUsers from "../pages/UnActiveUsers"; // Adjust import as needed
+import AddUsers from "../pages/AddUsers"; // Adjust import as needed
+import LockedCustomer from "../pages/LockedCustomer"; // Adjust import as needed
+import UnLockedCustomer from "../pages/UnLockedCustomer"; // Adjust import as needed
 
-const openedMixin = (theme) => ({
-  width: drawerWidth,
-  transition: theme.transitions.create("width", {
-    easing: theme.transitions.easing.sharp,
-    duration: theme.transitions.duration.enteringScreen,
-  }),
-  overflowX: "hidden",
-});
+const drawerWidth = 220;
 
-const closedMixin = (theme) => ({
-    transition: theme.transitions.create("width", {
-      easing: theme.transitions.easing.sharp,
-      duration: theme.transitions.duration.leavingScreen,
-    }),
-    overflowX: "hidden",
-    width: `calc(${theme.spacing(7)} + 1px)`, // Wrap in backticks
-    [theme.breakpoints.up("sm")]: {
-      width: `calc(${theme.spacing(8)} + 1px)`, // Wrap in backticks
-    },
-  });
-
-const DrawerHeader = styled("div")(({ theme }) => ({
-  display: "flex",
-  alignItems: "center",
-  justifyContent: "flex-end",
-  padding: theme.spacing(0, 1),
-  ...theme.mixins.toolbar,
-}));
-
-const AppBar = styled(MuiAppBar, {
-
-
-  shouldForwardProp: (prop) => prop !== "open",
-})(({ theme, open }) => ({
-  zIndex: theme.zIndex.drawer + 1,
-  transition: theme.transitions.create(["width", "margin"], {
-    easing: theme.transitions.easing.sharp,
-    duration: theme.transitions.duration.leavingScreen,
-  }),
-  background: "linear-gradient(to bottom, black, gray)",
-  ...(open && {
-    marginLeft: drawerWidth,
-    width: `calc(100% - ${drawerWidth}px)`,
-    transition: theme.transitions.create(["width", "margin"], {
-      easing: theme.transitions.easing.sharp,
-      duration: theme.transitions.duration.enteringScreen,
-    }),
-  }),
-}));
-
-const Drawer = styled(MuiDrawer, {
-  shouldForwardProp: (prop) => prop !== "open",
-})(({ theme, open }) => ({
-  width: drawerWidth,
-  flexShrink: 0,
-  whiteSpace: "nowrap",
-  boxSizing: "border-box",
-  ...(open && {
-    ...openedMixin(theme),
-    "& .MuiDrawer-paper": {
-      ...openedMixin(theme),
-      background: "linear-gradient(to bottom, black, gray)",
-    },
-  }),
-  ...(!open && {
-    ...closedMixin(theme),
-    "& .MuiDrawer-paper": {
-      ...closedMixin(theme),
-      background: "linear-gradient(to bottom, black, gray)",
-    },
-  }),
-}));
-
-function NavItem({ to, icon, text }) {
-  const location = useLocation();
-  const isActive = location.pathname === to;
-
-  return (
-    <ListItem component={Link} to={to} disablePadding sx={{ display: "block" }}>
-      <ListItemButton
-        sx={{
-          minHeight: 48,
-          justifyContent: "initial",
-          px: 2.5,
-          backgroundColor: isActive ? "lightgray" : "transparent",
-        }}
-      >
-        <ListItemIcon
-          sx={{
-            minWidth: 0,
-            mr: 3,
-            justifyContent: "center",
-            color: isActive ? "gray" : "white",
-          }}
-        >
-          {icon}
-        </ListItemIcon>
-        <ListItemText
-          primary={text}
-          sx={{ opacity: 1, color: isActive ? "gray" : "white" }}
-        />
-      </ListItemButton>
-    </ListItem>
-  );
-}
-
-export default function DashboardLayout() {
+function DashboardLayout() {
+  const [mobileViewOpen, setMobileViewOpen] = React.useState(false);
+  const [user, setUser] = React.useState(null);
+  const navigate = useNavigate();
   const auth = getAuth(app);
-  const navigate=useNavigate()
-  const theme = useTheme();
-  const [open, setOpen] = useState(false);
-  const [user, setuser] = useState(null);
-  const handleDrawerOpen = () => {
-    setOpen(true);
+
+  const handleToggle = () => {
+    setMobileViewOpen(!mobileViewOpen);
   };
 
-  const handleDrawerClose = () => {
-    setOpen(false);
-  };
-
-  useEffect(() => {
-    // Check the authentication state on component mount
-    const unsubscribe = onAuthStateChanged(auth, (user) => {
-      if (user) {
-        
-        setuser(user);
-      } 
-    });
-
-   
-    // Clean up subscription on component unmount
-    return () => unsubscribe();
-  }, []);
-
-
-  function handleLogout() {
+  const handleLogout = () => {
     signOut(auth)
       .then(() => {
-       navigate("/login")
+        navigate("/login");
       })
       .catch((error) => {
-        // An error happened during sign out
         console.error("Error signing out:", error);
       });
-  }
-  
+  };
+
+  React.useEffect(() => {
+    const unsubscribe = onAuthStateChanged(auth, (user) => {
+      if (user) {
+        setUser(user);
+      }
+    });
+
+    return () => unsubscribe();
+  }, [auth]);
+
+  const responsiveDrawer = (
+    <div style={{ backgroundColor: "#09212E", height: "100%" }}>
+      <Box
+        sx={{
+          textAlign: "center",
+          background: "white",
+          color: "white",
+          fontSize: 20,
+          padding: "5px",
+        }}
+      >
+        <img
+          src="/logo.png"
+          alt="logo"
+          style={{ width: "40px", height: "40px", borderRadius: "50%" }}
+        />
+        <Typography
+          sx={{ fontSize: "18px", fontWeight: "bold", color: "black" }}
+        >
+          Dashboard
+        </Typography>
+      </Box>
+      <Divider />
+      <List sx={{ backgroundColor: "#09212E" }}>
+        <ListItemButton component={Link} to="/" sx={{ color: "white" }}>
+          <ListItemIcon sx={{ color: "white" }}>
+            <DashboardIcon />
+          </ListItemIcon>
+          <ListItemText primary={"Dashboard"} />
+        </ListItemButton>
+        <ListItemButton
+          component={Link}
+          to="/all-users"
+          sx={{ color: "white" }}
+        >
+          <ListItemIcon sx={{ color: "white" }}>
+            <GroupIcon />
+          </ListItemIcon>
+          <ListItemText primary={"All Users"} />
+        </ListItemButton>
+        <ListItemButton
+          component={Link}
+          to="/active-users"
+          sx={{ color: "white" }}
+        >
+          <ListItemIcon sx={{ color: "white" }}>
+            <PersonIcon />
+          </ListItemIcon>
+          <ListItemText primary={"Active Users"} />
+        </ListItemButton>
+        <ListItemButton
+          component={Link}
+          to="/inactive-users"
+          sx={{ color: "white" }}
+        >
+          <ListItemIcon sx={{ color: "white" }}>
+            <PersonOffIcon />
+          </ListItemIcon>
+          <ListItemText primary={"InActive Users"} />
+        </ListItemButton>
+        <ListItemButton
+          component={Link}
+          to="/add-users"
+          sx={{ color: "white" }}
+        >
+          <ListItemIcon sx={{ color: "white" }}>
+            <PersonAddIcon />
+          </ListItemIcon>
+          <ListItemText primary={"Add Users"} />
+        </ListItemButton>
+        <ListItemButton
+          component={Link}
+          to="/locked-customers"
+          sx={{ color: "white" }}
+        >
+          <ListItemIcon sx={{ color: "white" }}>
+            <LockIcon />
+          </ListItemIcon>
+          <ListItemText primary={"Locked Customers"} />
+        </ListItemButton>
+        <ListItemButton
+          component={Link}
+          to="/unlocked-customers"
+          sx={{ color: "white" }}
+        >
+          <ListItemIcon sx={{ color: "white" }}>
+            <LockOpenIcon />
+          </ListItemIcon>
+          <ListItemText primary={"Unlocked Customers"} />
+        </ListItemButton>
+      </List>
+    </div>
+  );
+
   return (
     <Box sx={{ display: "flex" }}>
       <CssBaseline />
-      <AppBar position="fixed" open={open}>
+      <AppBar
+        position="fixed"
+        sx={{
+          width: { sm: `calc(100% - ${drawerWidth}px)` },
+          ml: { sm: `${drawerWidth}px` },
+          backgroundColor: "#09212E",
+        }}
+      >
         <Toolbar>
           <IconButton
-            color="inherit"
-            aria-label="open drawer"
-            onClick={handleDrawerOpen}
+            color="white"
             edge="start"
-            sx={{
-              marginRight: 5,
-              ...(open && { display: "none" }),
-            }}
+            onClick={handleToggle}
+            sx={{ mr: 2, display: { sm: "none" } }}
           >
             <MenuIcon />
           </IconButton>
-          <Box sx={{ width:"100%", display:"flex", alignItems:"center",justifyContent:"space-between"}}>
-          <Box sx={{display:"flex", alignItems:"center",gap:"8px"}}>
-            <img style={{width:"40px", height:"40px", borderRadius:"50%"}} src="/logo.png" alt="logo App"/>
-          <Typography variant="h6" noWrap component="div">
-          DASHBOARD
-          </Typography>
-          </Box>
-          <Box sx={{display:"flex",  alignItems:"center",gap:"20px"}}>
-        <Box sx={{display:"flex", flexDirection:"column", alignItems:"center"}}>
-        <PersonIcon style={{width:"30px", height:"30px", borderRadius:"50%"}}/>
-            {/* <img style={{width:"35px", height:"35px", borderRadius:"50%"}} src="/logo.png" alt="logo App"/> */}
-          <Typography sx={{fontSize:"14px"}} variant="h6" noWrap component="div">
-             {user!==null ?(user.email):(null)}
-          </Typography>
-        </Box>
-        <button onClick={()=>{handleLogout()}} style={{border:"none", background:"none", display:"flex",flexDirection:"column", alignItems:"center"}}>  <ExitToAppIcon style={{ width: "24px", height: "24px", color: "white" }} />
-        <Typography sx={{fontSize:"14px", color:"white"}} variant="h6" noWrap component="div">
-           Logout
-          </Typography>
-        </button>
-          </Box>
-
+          <Box
+            sx={{
+              width: "100%",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "end",
+              gap: "20px",
+            }}
+          >
+            <Box
+              sx={{
+                display: "flex",
+                flexDirection: "column",
+                alignItems: "center",
+              }}
+            >
+              <PersonIcon
+                style={{
+                  width: "30px",
+                  height: "30px",
+                  borderRadius: "50%",
+                  color: "white",
+                }}
+              />
+              <Typography
+                sx={{ fontSize: "14px", color: "white" }}
+                variant="h6"
+                noWrap
+                component="div"
+              >
+                {user !== null ? user.email : null}
+              </Typography>
+            </Box>
+            <Box sx={{ display: "flex", alignItems: "center", gap: "20px" }}>
+              <button
+                onClick={() => {
+                  handleLogout();
+                }}
+                style={{
+                  border: "none",
+                  background: "none",
+                  display: "flex",
+                  flexDirection: "column",
+                  alignItems: "center",
+                }}
+              >
+                <ExitToAppIcon
+                  style={{ width: "24px", height: "24px", color: "white" }}
+                />
+                <Typography
+                  sx={{ fontSize: "14px", color: "white" }}
+                  variant="h6"
+                  noWrap
+                  component="div"
+                >
+                  Logout
+                </Typography>
+              </button>
+            </Box>
           </Box>
         </Toolbar>
       </AppBar>
-      <Drawer variant="permanent" open={open}>
-        <DrawerHeader>
-          <IconButton sx={{ color: "white" }} onClick={handleDrawerClose}>
-            {theme.direction === "rtl" ? (
-              <ChevronRightIcon />
-            ) : (
-              <ChevronLeftIcon />
-            )}
-          </IconButton>
-        </DrawerHeader>
-        <Divider />
-        <List>
-          <NavItem to="/" icon={<DashboardIcon />} text="Dashboard" />
-          <NavItem to="/allusers" icon={<GroupIcon />} text="All Users" />
-          <NavItem to="/addusers" icon={<PersonAddIcon />} text="Add Users" />
-          <NavItem
-            to="/activeUsers"
-            icon={<PersonIcon />}
-            text="Active Users"
-          />
-          <NavItem
-            to="/unactiveUsers"
-            icon={<PersonOffIcon />}
-            text="UnActive Users"
-          />
-          
-          <NavItem
-            to="/lockedcustomers"
-            icon={<LockIcon />}
-            text="Locked Customers"
-          />
-          <NavItem
-            to="/unlockedcustomers"
-            icon={<LockOpenIcon />}
-            text="UnLocked Customers"
-          />
-        </List>
-        <Divider />
-      </Drawer>
-      <Box component="main" sx={{ flexGrow: 1, p: 3 }}>
-        <DrawerHeader />
+      <Box
+        component="nav"
+        sx={{ width: { sm: drawerWidth }, flexShrink: { sm: 0 } }}
+      >
+        <Drawer
+          variant="temporary"
+          open={mobileViewOpen}
+          onClose={handleToggle}
+          ModalProps={{
+            keepMounted: true,
+          }}
+          sx={{
+            display: { xs: "block", sm: "none" },
+            "& .MuiDrawer-paper": {
+              boxSizing: "border-box",
+              width: drawerWidth,
+            },
+          }}
+        >
+          {responsiveDrawer}
+        </Drawer>
+        <Drawer
+          variant="permanent"
+          sx={{
+            display: { xs: "none", sm: "block" },
+            "& .MuiDrawer-paper": {
+              boxSizing: "border-box",
+              width: drawerWidth,
+            },
+          }}
+          open
+        >
+          {responsiveDrawer}
+        </Drawer>
+      </Box>
+      <Box
+        component="main"
+        sx={{
+          flexGrow: 1,
+          p: 3,
+          width: { sm: `calc(100% - ${drawerWidth}px)` },
+        }}
+      >
+        <Toolbar />
         <Routes>
           <Route path="/" element={<Dashboard />} />
           <Route path="/all-users" element={<AllUsers />} />
-          <Route path="/add-users" element={<AddUsers />} />
           <Route path="/active-users" element={<ActiveUsers />} />
           <Route path="/inactive-users" element={<UnActiveUsers />} />
-         
+          <Route path="/add-users" element={<AddUsers />} />
           <Route path="/locked-customers" element={<LockedCustomer />} />
           <Route path="/unlocked-customers" element={<UnLockedCustomer />} />
         </Routes>
@@ -282,3 +297,5 @@ export default function DashboardLayout() {
     </Box>
   );
 }
+
+export default DashboardLayout;
