@@ -11,7 +11,7 @@ import LocationModal from "../Modals/LocationModal";
 import VisibilityIcon from "@mui/icons-material/Visibility";
 import Modal from "react-bootstrap/Modal";
 import Button from "react-bootstrap/Button";
-
+import DatePicker from"../../components/datacomponent/DatePicker"
 const UnLockedCustomerTable = ({
   data = [],
   loading,
@@ -98,8 +98,10 @@ const UnLockedCustomerTable = ({
   return (
     <div className="mt-2">
       <ToastContainer />
-      <div className="d-flex align-items-center justify-content-end">
+      <div className="d-flex align-items-center justify-content-end gap-2">
+      <DatePicker/>
         <div className="my-3 border border-gray d-flex align-items-center px-2 py-2 rounded w-25">
+          
           <input
             style={{ outline: "none", border: "none", width: "100%" }}
             type="text"
@@ -163,7 +165,7 @@ const UnLockedCustomerTable = ({
                       </>
                     ) : (
                       <>
-                        Inactive
+                        Active
                         <FiberManualRecordIcon
                           style={{ color: "red", fontSize: "18px" }}
                         />

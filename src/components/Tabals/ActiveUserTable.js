@@ -11,7 +11,7 @@ import LocationModal from "../Modals/LocationModal";
 import VisibilityIcon from "@mui/icons-material/Visibility";
 import Modal from "react-bootstrap/Modal";
 import Button from "react-bootstrap/Button";
-
+import * as XLSX from 'xlsx'; // Import XLSX library
 const ActiveUserTable = ({ data = [], loading, onToggleChange, onDeleteUser }) => {
   const [searchTerm, setSearchTerm] = useState("");
   const [localLoading, setLocalLoading] = useState({});
@@ -91,10 +91,35 @@ const ActiveUserTable = ({ data = [], loading, onToggleChange, onDeleteUser }) =
     (user.mobileimei && user.mobileimei.toLowerCase().includes(searchTerm.toLowerCase()))
   );
 
+
+  const exportToExcel = () => {
+    // Prepare data for export
+    const exportData = data.map(user => ({
+      Name: user.name || "NA",
+     
+     
+      "Mobile Type": user.mobiletype,
+      "Mobile IMEI": user.mobileimei,
+      Status: user.kidstatus ? "Active" : "Inactive",
+     
+    }));
+
+    // Create a worksheet and a workbook
+    const ws = XLSX.utils.json_to_sheet(exportData);
+    const wb = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(wb, ws, "Users");
+
+    // Generate Excel file and download it
+    XLSX.writeFile(wb, "ActiveUsers.xlsx");
+  };
+
   return (
     <div className="mt-2">
       <ToastContainer />
-      <div className="d-flex align-items-center justify-content-end">
+      <div className="d-flex align-items-center justify-content-end gap-3">
+      <Button onClick={exportToExcel} variant="success">
+          Download Excel
+        </Button>
         <div className="my-3 border border-gray d-flex align-items-center px-2 py-2 rounded w-25">
           <input
             style={{ outline: "none", border: "none", width: "100%" }}

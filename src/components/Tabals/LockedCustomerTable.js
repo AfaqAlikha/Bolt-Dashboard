@@ -10,8 +10,9 @@ import VisibilityOffIcon from "@mui/icons-material/VisibilityOff";
 import LocationModal from "../Modals/LocationModal";
 import VisibilityIcon from "@mui/icons-material/Visibility";
 import Modal from "react-bootstrap/Modal";
+import DatePicerCom from"../../components/datacomponent/DatePicerCom"
 import Button from "react-bootstrap/Button";
-// import DatePicer from "../Datecomponent/DatePicer";
+
 const LockedCustomerTable = ({
   data = [],
   loading,
@@ -27,7 +28,7 @@ const LockedCustomerTable = ({
   });
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [userToDelete, setUserToDelete] = useState(null);
-  const [selectedDate, setSelectedDate] = useState(null);
+ 
 
   const handleToggleChange = async (parentUid, phone, currentLockedStatus) => {
     const updatedStatus = !currentLockedStatus;
@@ -100,13 +101,7 @@ const LockedCustomerTable = ({
     <div className="mt-2">
       <ToastContainer />
       <div className="d-flex align-items-center justify-content-end">
-        {/* <DatePicer
-          selectedDate={selectedDate}
-          setSelectedDate={setSelectedDate}
-        /> */}
-        {/* <Button variant="contained" color="primary" onClick={handleButtonClick}>
-          Send Date
-        </Button> */}
+      <DatePicerCom/>
         <div className="my-3 border border-gray d-flex align-items-center px-2 py-2 rounded w-25">
           <input
             style={{ outline: "none", border: "none", width: "100%" }}
@@ -171,7 +166,7 @@ const LockedCustomerTable = ({
                       </>
                     ) : (
                       <>
-                        Inactive
+                        Active
                         <FiberManualRecordIcon
                           style={{ color: "red", fontSize: "18px" }}
                         />
@@ -222,7 +217,7 @@ const LockedCustomerTable = ({
                           className="toggle__label"
                         ></label>
                         {localLoading[`${user.parentUid}${user.phone}`] && (
-                          <Spinner animation="border" size="sm" />
+                          <Spinner animation="grow" size="sm" />
                         )}
                       </div>
                       <button

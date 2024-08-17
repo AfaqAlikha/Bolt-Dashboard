@@ -86,7 +86,10 @@ const Index = () => {
       const snapshotUpdated = await get(child(ref(db), "users/childs"));
       if (snapshotUpdated.exists()) {
         const allUsers = snapshotUpdated.val();
-        setUsers(Object.values(allUsers));
+        const filteredUsers = Object.values(allUsers).filter(
+          (user) => user.kidstatus === true
+        );
+        setUsers(filteredUsers);
       }
       console.log("User deleted successfully");
     } catch (error) {
