@@ -4,6 +4,7 @@ import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import { DatePicker } from '@mui/x-date-pickers/DatePicker';
 import dayjs from 'dayjs';
+import axios from 'axios';
 
 const DatePicerCom = () => {
     const [selectedDate, setSelectedDate] = useState(null);
@@ -11,14 +12,33 @@ const DatePicerCom = () => {
 
   const handleDateChange = (date) => {
     setSelectedDate(date);
-    const formatted = dayjs(date).format('DD-MM-YYYY');
+    const formatted = dayjs(date).format('YYYY-MM-DD');
     setFormattedDate(formatted);
   };
+ 
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async(e) => {
     e.preventDefault();
+
+    try {
+      const response = await axios.post('https://www.mypayfone.com/marshal/admin/users/check_and_lock_user', {
+        date:formattedDate,
+        message: "Unlocked"
+      });
+
+      if (response.status === 200) {
+          console.log('User checked and locked successfully:', response.data);
+          // Handle success
+      } else {
+          console.error('Error checking and locking user:', response);
+          // Handle errors
+      }
+  } catch (error) {
+      console.error('Error during API call:', error);
+      // Handle errors
+  }
     // You can now use the formattedDate for submission
-    console.log(`Selected Date: ${formattedDate}`);
+ 
   };
   return (
     <LocalizationProvider dateAdapter={AdapterDayjs}>

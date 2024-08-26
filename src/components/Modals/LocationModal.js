@@ -27,7 +27,7 @@ const LocationModal = ({ show, handleClose, latitude, longitude }) => {
           {latitude !== 0 && longitude !== 0 ? (
             <GoogleMapReact
               bootstrapURLKeys={{
-                key: "AIzaSyB8KIVPOJDov4RMGzTh2phJ0wboGrAmYCQ",
+                key: "AIzaSyD7sECUDZyxo8anJhQ59t_rJQY3E2H7NRE",
               }} // Replace with your actual API key
               defaultCenter={{ lat: latitude, lng: longitude }}
               defaultZoom={15}
