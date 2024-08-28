@@ -5,6 +5,7 @@ import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import { DatePicker } from '@mui/x-date-pickers/DatePicker';
 import dayjs from 'dayjs';
 import axios from 'axios';
+import { toast } from 'react-toastify';
 const DatePicerCom = () => {
     const [selectedDate, setSelectedDate] = useState(null);
   const [formattedDate, setFormattedDate] = useState('');
@@ -24,14 +25,14 @@ const DatePicerCom = () => {
       });
 
       if (response.status === 200) {
-          console.log('User checked and locked successfully:', response.data);
+          toast.success('User checked and locked successfully:', response.data);
           // Handle success
       } else {
-          console.error('Error checking and locking user:', response);
+          toast.error('Error checking and locking user:', response);
           // Handle errors
       }
   } catch (error) {
-      console.error('Error during API call:', error);
+      toast.error('Error during API call:', error);
       // Handle errors
   }
     // You can now use the formattedDate for submission

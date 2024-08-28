@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState,useEffect } from "react";
 import { toast, ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css'; // Import Toastify CSS
 import FiberManualRecordIcon from "@mui/icons-material/FiberManualRecord";
@@ -11,6 +11,13 @@ import LocationModal from "../Modals/LocationModal";
 import VisibilityIcon from "@mui/icons-material/Visibility";
 import Modal from "react-bootstrap/Modal";
 import Button from "react-bootstrap/Button";
+import { getDatabase, ref, child, get, update,remove } from "firebase/database";
+import { Link } from 'react-router-dom';
+import { app } from "../../Firbase";
+import { getAuth } from "firebase/auth";
+import HistoryIcon from '@mui/icons-material/History';
+import LocationOnIcon from '@mui/icons-material/LocationOn';
+import LocationOffIcon from '@mui/icons-material/LocationOff';
 import * as XLSX from 'xlsx'; // Import XLSX library
 const ActiveUserTable = ({ data = [], loading, onToggleChange, onDeleteUser }) => {
   const [searchTerm, setSearchTerm] = useState("");
@@ -19,6 +26,43 @@ const ActiveUserTable = ({ data = [], loading, onToggleChange, onDeleteUser }) =
   const [selectedLocation, setSelectedLocation] = useState({ latitude: 0, longitude: 0 });
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [userToDelete, setUserToDelete] = useState(null);
+ 
+  const [User, setUser] = useState({});
+    
+ 
+  const db = getDatabase(app);
+  const dbRef = ref(db);
+
+  const auth = getAuth(app);
+  const currentUser = auth.currentUser;
+ 
+  // const uid = currentUser ? currentUser.uid : null;
+
+useEffect(() => {
+  const getCurrentUser = async () => {
+    if (currentUser.uid) {
+     
+      try {
+        const snapshot = await get(child(dbRef, `users/admin/${currentUser.uid}`));
+        if (snapshot.exists()) {
+          const userData = snapshot.val();
+         
+          setUser(userData);
+        } else {
+          console.log("No data available for the current user");
+        }
+      } catch (error) {
+        console.error("Error retrieving data:", error);
+      }
+    } else {
+      console.log("No user is currently logged in");
+    }
+  };
+
+  getCurrentUser();
+}, [currentUser.uid]);
+
+
 
   const handleToggleChange = async (parentUid, phone, currentLockedStatus) => {
     const updatedStatus = !currentLockedStatus;
@@ -142,7 +186,8 @@ const ActiveUserTable = ({ data = [], loading, onToggleChange, onDeleteUser }) =
               <th scope="col">Mobile IMEI</th>
               <th scope="col">Status</th>
               <th scope="col">Location</th>
-              <th scope="col">Action</th>
+              {User && User?.category === "sub admin" ? null : <th scope="col">Action</th>}
+              <th scope="col">Histry</th>
             </tr>
           </thead>
           <tbody>
@@ -190,7 +235,7 @@ const ActiveUserTable = ({ data = [], loading, onToggleChange, onDeleteUser }) =
                           className="btn btn-link"
                           onClick={() => handleShowLocation(user.location.latitude, user.location.longitude)}
                         >
-                          <VisibilityIcon style={{ color: "green" }} />
+                          <LocationOnIcon style={{ color: "green" }} />
                         </button>
                       </>
                     ) : (
@@ -198,31 +243,40 @@ const ActiveUserTable = ({ data = [], loading, onToggleChange, onDeleteUser }) =
                         <button
                           className="btn btn-link"
                         >
-                          <VisibilityOffIcon style={{ color: "gray" }} />
+                          <LocationOffIcon style={{ color: "gray" }} />
                         </button>
                       </>
                     )}
                   </td>
-                  <td>
-                    <div className="cont">
-                      <div className="toggle">
-                        <input
-                          type="checkbox"
-                          id={`${user.parentUid}${user.phone}`}
-                          className="toggle__input"
-                          checked={user.screenLock?.locked || false}
-                          onChange={() => handleToggleChange(user.parentUid, user.phone, user.screenLock?.locked || false)}
-                        />
-                        <label htmlFor={`${user.parentUid}${user.phone}`} className="toggle__label"></label>
-                        {localLoading[`${user.parentUid}${user.phone}`] && (
-                          <Spinner animation="border" size="sm" />
-                        )}
+                  {User && User?.category === "sub admin" ? null : (
+                    <td>
+                      <div className="cont">
+                        <div className="toggle">
+                          <input
+                            type="checkbox"
+                            id={`${user.parentUid}${user.phone}`}
+                            className="toggle__input"
+                            checked={user.screenLock?.locked || false}
+                            onChange={() => handleToggleChange(user.parentUid, user.phone, user.screenLock?.locked || false)}
+                          />
+                          <label htmlFor={`${user.parentUid}${user.phone}`} className="toggle__label"></label>
+                          {localLoading[`${user.parentUid}${user.phone}`] && (
+                            <Spinner animation="border" size="sm" />
+                          )}
+                        </div>
+                        <button className="btn-delete" onClick={() => handleShowDeleteModal(user)}>
+                          <DeleteIcon style={{ color: "red" }} />
+                        </button>
                       </div>
-                      <button className="btn-delete" onClick={() => handleShowDeleteModal(user)}>
-                        <DeleteIcon style={{ color: "red" }} />
-                      </button>
-                    </div>
-                  </td>
+                    </td>
+                  )}
+                  
+                  <td>
+                  <Link to={`/callhistry?parentUid=${user.parentUid}&phone=${user.childnumber}`} className="btn-link">
+                  <HistoryIcon style={{ color: "green" }}/>
+                 </Link>
+  
+                 </td>
                 </tr>
               ))
             )}

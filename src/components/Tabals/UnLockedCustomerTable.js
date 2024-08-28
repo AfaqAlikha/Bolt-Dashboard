@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState,useEffect } from "react";
 import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css"; // Import Toastify CSS
 import FiberManualRecordIcon from "@mui/icons-material/FiberManualRecord";
@@ -12,6 +12,9 @@ import VisibilityIcon from "@mui/icons-material/Visibility";
 import Modal from "react-bootstrap/Modal";
 import Button from "react-bootstrap/Button";
 import DatePicker from"../../components/datacomponent/DatePicker"
+import { getDatabase, ref, child, get, update,remove } from "firebase/database";
+import { app } from "../../Firbase";
+import { getAuth } from "firebase/auth";
 const UnLockedCustomerTable = ({
   data = [],
   loading,
@@ -27,6 +30,44 @@ const UnLockedCustomerTable = ({
   });
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [userToDelete, setUserToDelete] = useState(null);
+
+
+  const [User, setUser] = useState({});
+    
+ 
+  const db = getDatabase(app);
+  const dbRef = ref(db);
+
+  const auth = getAuth(app);
+  const currentUser = auth.currentUser;
+ 
+  // const uid = currentUser ? currentUser.uid : null;
+
+useEffect(() => {
+  const getCurrentUser = async () => {
+    if (currentUser.uid) {
+     
+      try {
+        const snapshot = await get(child(dbRef, `users/admin/${currentUser.uid}`));
+        if (snapshot.exists()) {
+          const userData = snapshot.val();
+         
+          setUser(userData);
+        } else {
+          console.log("No data available for the current user");
+        }
+      } catch (error) {
+        console.error("Error retrieving data:", error);
+      }
+    } else {
+      console.log("No user is currently logged in");
+    }
+  };
+
+  getCurrentUser();
+}, [currentUser.uid]);
+
+
 
   const handleToggleChange = async (parentUid, phone, currentLockedStatus) => {
     const updatedStatus = !currentLockedStatus;
@@ -125,7 +166,7 @@ const UnLockedCustomerTable = ({
               <th scope="col">Mobile IMEI</th>
               <th scope="col">Status</th>
               <th scope="col">Location</th>
-              <th scope="col">Action</th>
+              {User && User?.category === "sub admin" ? null : <th scope="col">Action</th>}
             </tr>
           </thead>
           <tbody>
@@ -195,6 +236,7 @@ const UnLockedCustomerTable = ({
                       </>
                     )}
                   </td>
+                  {User && User?.category === "sub admin" ? null : (
                   <td>
                     <div className="cont">
                       <div className="toggle">
@@ -227,6 +269,7 @@ const UnLockedCustomerTable = ({
                       </button>
                     </div>
                   </td>
+                     )}
                 </tr>
               ))
             )}

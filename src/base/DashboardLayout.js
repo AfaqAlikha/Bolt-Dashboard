@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState,useEffect } from "react";
 import AppBar from "@mui/material/AppBar";
 import Box from "@mui/material/Box";
 import CssBaseline from "@mui/material/CssBaseline";
@@ -31,14 +31,47 @@ import UnActiveUsers from "../pages/UnActiveUsers"; // Adjust import as needed
 import AddUsers from "../pages/AddUsers"; // Adjust import as needed
 import LockedCustomer from "../pages/LockedCustomer"; // Adjust import as needed
 import UnLockedCustomer from "../pages/UnLockedCustomer"; // Adjust import as needed
-
+import AddAdmin from"../pages/AddAdmin"
+import CallHistry from"../pages/CallHistry"
+import CallIcon from '@mui/icons-material/Call';
+import { getDatabase, ref, child, get, } from "firebase/database";
 const drawerWidth = 220;
 
 function DashboardLayout() {
   const [mobileViewOpen, setMobileViewOpen] = React.useState(false);
   const [user, setUser] = React.useState(null);
+  const [User, setuser] = useState({});
   const navigate = useNavigate();
   const auth = getAuth(app);
+  const currentUser = auth.currentUser;
+  const db = getDatabase(app);
+  const dbRef = ref(db);
+  useEffect(() => {
+    const getCurrentUser = async () => {
+      if (currentUser.uid) {
+       
+        try {
+          const snapshot = await get(child(dbRef, `users/admin/${currentUser.uid}`));
+          if (snapshot.exists()) {
+            const userData = snapshot.val();
+           
+            setuser(userData);
+          } else {
+            console.log("No data available for the current user");
+          }
+        } catch (error) {
+          console.error("Error retrieving data:", error);
+        }
+      } else {
+        console.log("No user is currently logged in");
+      }
+    };
+  
+    getCurrentUser();
+  }, [currentUser.uid]);
+
+
+
 
   const handleToggle = () => {
     setMobileViewOpen(!mobileViewOpen);
@@ -63,6 +96,10 @@ function DashboardLayout() {
 
     return () => unsubscribe();
   }, [auth]);
+
+
+
+
 
   const responsiveDrawer = (
     <div style={{ backgroundColor: "#09212E", height: "100%" }}>
@@ -134,6 +171,18 @@ function DashboardLayout() {
           </ListItemIcon>
           <ListItemText primary={"Add Users"} />
         </ListItemButton>
+        {User && User?.category === "sub admin" ? null : (
+        <ListItemButton
+          component={Link}
+          to="/add-subadmin"
+          sx={{ color: "white" }}
+        >
+          <ListItemIcon sx={{ color: "white" }}>
+            <PersonAddIcon />
+          </ListItemIcon>
+          <ListItemText primary={"Add Admin"} />
+        </ListItemButton>
+        )}
         <ListItemButton
           component={Link}
           to="/locked-customers"
@@ -154,6 +203,16 @@ function DashboardLayout() {
           </ListItemIcon>
           <ListItemText primary={"Unlocked Customers"} />
         </ListItemButton>
+        {/* <ListItemButton
+          component={Link}
+          to="/callhistry"
+          sx={{ color: "white" }}
+        >
+          <ListItemIcon sx={{ color: "white" }}>
+            <CallIcon />
+          </ListItemIcon>
+          <ListItemText primary={"CallHistry"} />
+        </ListItemButton> */}
       </List>
     </div>
   );
@@ -290,8 +349,10 @@ function DashboardLayout() {
           <Route path="/active-users" element={<ActiveUsers />} />
           <Route path="/inactive-users" element={<UnActiveUsers />} />
           <Route path="/add-users" element={<AddUsers />} />
+          <Route path="/add-subadmin" element={<AddAdmin />} />
           <Route path="/locked-customers" element={<LockedCustomer />} />
           <Route path="/unlocked-customers" element={<UnLockedCustomer />} />
+          <Route path="/callhistry" element={<CallHistry />} />
         </Routes>
       </Box>
     </Box>

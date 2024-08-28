@@ -3,6 +3,7 @@ import { TextField, Button, Box } from '@mui/material';
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import { DatePicker } from '@mui/x-date-pickers/DatePicker';
+import { toast } from 'react-toastify';
 import dayjs from 'dayjs';
 import axios from 'axios';
 
@@ -27,14 +28,14 @@ const DatePicerCom = () => {
       });
 
       if (response.status === 200) {
-          console.log('User checked and locked successfully:', response.data);
+          toast.success('User checked and locked successfully:', response.data);
           // Handle success
       } else {
-          console.error('Error checking and locking user:', response);
+          toast.error('Error checking and locking user:', response);
           // Handle errors
       }
   } catch (error) {
-      console.error('Error during API call:', error);
+      toast.error('Error during API call:', error);
       // Handle errors
   }
     // You can now use the formattedDate for submission

@@ -2,11 +2,14 @@ import React, { useEffect, useState } from "react";
 import { getDatabase, ref, child, get, update,remove } from "firebase/database";
 import ActiveUserTable from "../../components/Tabals/ActiveUserTable";
 import { app } from "../../Firbase";
-
+import { getAuth } from "firebase/auth";
 
 const Index = () => {
   const [users, setUsers] = useState([]);
   const [loading, setLoading] = useState(true);
+
+
+
 
   useEffect(() => {
     const getAllUsers = async () => {
@@ -87,7 +90,7 @@ const Index = () => {
     <div>
       <div className="mt-3">
         <h5 className="fw-bold">All Users</h5>
-        <ActiveUserTable data={users} loading={loading} onToggleChange={handleToggleChange} onDeleteUser={handleDeleteUser} />
+        <ActiveUserTable data={users}  loading={loading} onToggleChange={handleToggleChange} onDeleteUser={handleDeleteUser } />
       </div>
     </div>
   );

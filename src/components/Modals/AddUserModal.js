@@ -87,6 +87,7 @@ const AddUserModal = ({ show, handleClose }) => {
             depositpaid: "",
             displayName: "",
             instalmenttype: "",
+            
             kidpassword: randomPassword,  // Use generated password
             kidstatus: false,
             loanamount: "",
